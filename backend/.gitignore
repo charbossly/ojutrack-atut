@@ -46,9 +46,7 @@ dist/
 build/
 *.egg
 
-# Static files and uploaded media
-/static/*
-/uploads/*
+
 
 # IDE-specific files
 .vscode/
