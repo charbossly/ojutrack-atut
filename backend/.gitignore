@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Flask settings
+instance/
+config.py
+*.env
+.env.*
+.vscode/
+.idea/
+
+# Environment variables
+.env
+*.env
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+myenv/
+.myenv
+
+# Flask logs
+flask.log
+*.log
+
+# Database files
+*.db
+*.sqlite3
+*.sql
+*.pdb
+
+# Pytest cache
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Cache files
+*.cache
+*.egg-info
+dist/
+build/
+*.egg
+
+# Static files and uploaded media
+/static/*
+/uploads/*
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/
+
+# MacOS-specific files
+.DS_Store
