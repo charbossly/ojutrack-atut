@@ -3,7 +3,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import os
 import cv2
-#from deepface import DeepFace
+
+from deepface import DeepFace
+
 import pandas as pd
 import numpy as np
 from flask import send_from_directory
@@ -25,6 +27,84 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Types de fichiers autorisés (par exemple, JPG, PNG)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+models = [
+  "VGG-Face", 
+  "Facenet", 
+  "Facenet512", 
+  "OpenFace", 
+  "DeepFace", 
+  "DeepID", 
+  "ArcFace", 
+  "Dlib", 
+  "SFace",
+  "GhostFaceNet",
+]
+
+
+#@app.route("/test", methods=['GET'])
+def matching(img,path):
+    print("img", img)
+    print("path", path)
+
+    images = {
+    }
+
+    try:
+        results = DeepFace.find(
+        # img_path = "/home/lunix/Documents/ATUT/Bootcamp/base/MORPH-2/Dataset/Images/Test/155839.jpeg",
+        # db_path = "/home/lunix/Documents/ATUT/Bootcamp/base/MORPH-2/Dataset/Images/Test",
+        # img_path ="static/Test/" + img,
+         img_path ="static/uploads/" + img,
+        #img_path = "static/Test/82_01M18.JPG",
+        db_path = path,
+
+        # img2_path = "/home/lunix/Documents/ATUT/Bootcamp/base/MORPH-2/Dataset/Images/Test",
+        model_name = models[2]
+        )
+    except ValueError as e:
+        # Vérification si l'erreur est liée à la non-détection du visage
+        if "Face could not be detected" in str(e):
+            print("Nous n'avons pas pu détecter le visage dans une des images.")
+            return jsonify({"error": "Nous n'avons pas pu détecter le visage dans une des images."}), 404
+        else:
+            # Gestion d'autres erreurs possibles
+            print(f"Une erreur s'est produite: {e}")
+            return jsonify({"error": "Une erreur s'est produite"}), 500
+
+    # results = DeepFace.find(
+    # # img_path = "/home/lunix/Documents/ATUT/Bootcamp/base/MORPH-2/Dataset/Images/Test/155839.jpeg",
+    # # db_path = "/home/lunix/Documents/ATUT/Bootcamp/base/MORPH-2/Dataset/Images/Test",
+    # # img_path ="static/Test/" + img,
+    #  img_path ="static/uploads/" + img,
+    # #img_path = "static/Test/82_01M18.JPG",
+    # db_path = path,
+
+    # # img2_path = "/home/lunix/Documents/ATUT/Bootcamp/base/MORPH-2/Dataset/Images/Test",
+    # model_name = models[2]
+    # )
+
+    
+
+    print(results[0]['identity'])
+    print(results[0]['distance'])
+    images['identity']= results[0]['identity']
+    images['distance']= results[0]['distance']
+    # for result in results:
+    #     print(result.identity)
+    #     images.append(result.identity)
+
+    print(type(images))
+    #return json.dumps(images)
+
+
+    data = {
+        'distance': ((1-images['distance'])).to_dict(),
+        'identity': images['identity'].to_dict()
+    }
+
+    
+
+    return [(data['distance'][key], data['identity'][key]) for key in data['distance'].keys()]
 
 @app.route("/")
 def test():
@@ -98,6 +178,13 @@ def chercher_images_similaires(image_cible_path, dossier_images, seuil_similarit
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def select_score(array_items,score):
+    scores = []
+
+    for item in array_items:
+        if item['score'] >= score:
+            scores.append(item)
+            
 @app.route('/api/upload_image', methods=['POST'])
 def upload_image():
 
@@ -117,7 +204,9 @@ def upload_image():
 
         file.save(file_path)
 
-        infos = merge(file_path)
+        print(file_path)
+
+        infos = merge(file_path.split("/")[-1])
 
         #return jsonify({"message": "Image uploaded successfully", "infos": "resutats"}), 200
         return infos
@@ -126,14 +215,21 @@ def upload_image():
 
 
 
+    
+
+
 # @app.route('/api/merge/<int:faceid>', methods=['GET'])
 #def merge(faceid: str):
 #@app.route('/api/merge', methods=['GET'])
 def merge(faceid):
     #faceid = session["image_path"]
     image_cible = faceid
-    dossier_images = "static/Test"
-    similar_images = chercher_images_similaires(image_cible, dossier_images, seuil_similarite=0.75)
+    # dossier_images = "static/Test"
+    dossier_images = "static/Test01"
+    #similar_images = chercher_images_similaires(image_cible, dossier_images, seuil_similarite=0.75)
+    
+    similar_images = matching(image_cible, dossier_images)
+    
     # Remplacez 'fichier.csv' par le chemin de votre fichier CSV
     df1 = pd.read_csv("static/dataset1.csv")
     df2 = pd.read_csv("static/dataset2.csv")
@@ -145,7 +241,20 @@ def merge(faceid):
         for image in similar_images:
             #images.append(image)
             # Chercher l'élément par ID
-            img = image[0].split("/")[-1]
+            #img = image[0].split("/")[-1]
+
+            if image == 200:
+                img = image[1].split("/")[-1]  # Assuming `response[0]` contains the image URL
+            else:
+                
+                error_message = "Pas d'image similaire"
+                print(f"Error: {error_message}")  # Print error to the console
+                return jsonify({"error": error_message}), 404
+        
+            
+
+           # img = image[1].split("/")[-1]
+            
 
             item1 = df1[df1['image_paths'] == img].to_dict(orient='records')
             
@@ -158,15 +267,15 @@ def merge(faceid):
            
             if item1 and item2:
                 merged_item = {**item1[0], **item2[0]}
-                merged_item['score'] = image[1]
+                merged_item['score'] = image[0]
                 merged_items.append(merged_item)
             elif item1:
                 merged_item = {**item1[0]}
-                merged_item['score'] = image[1]
+                merged_item['score'] = image[0]
                 merged_items.append(merged_item)
             elif item2:
                 merged_item = {**item2[0]}
-                merged_item['score'] = image[1]
+                merged_item['score'] = image[0]
                 merged_items.append(merged_item)
 
             # else:
@@ -183,7 +292,8 @@ def merge(faceid):
 
 @app.route('/image/<filename>', methods=['GET'])
 def image(filename):
-    return send_from_directory('static/Test', filename)
+    # return send_from_directory('static/Test', filename)
+    return send_from_directory('static/Test01', filename)
 
 
 
