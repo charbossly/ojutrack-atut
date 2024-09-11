@@ -6,6 +6,7 @@ import CreditsPage from "./pages/CreditsPage";
 import DetailsPage from "./pages/DetailsPage";
 import DataProvider from "./context/apiContext";
 import NotFound from "./pages/NotFound";
+import HowItWorksPage from "./pages/HowItWorks";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/operations" element={<OperationsPage />} />
           <Route path="/similarity" element={<SimilarityPage />} />
+          <Route path="comment-ca-marche" element={<HowItWorksPage />} />
           <Route path="/credits" element={<CreditsPage />} />
           <Route path="/details/:image" element={<DetailsPage />} />
           <Route path="*" element={<NotFound />} />

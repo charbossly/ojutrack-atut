@@ -6,6 +6,7 @@ export default {
       backgroundImage: {
         pageBackground: "url('./src/assets/pageBackground.jpg')",
         backgroundImageB: "url('/personneB.png')",
+        backgroundImage: "url('/pageBackground.jpg')",
       },
       fontFamily: {
         poppins: ["Poppins"],

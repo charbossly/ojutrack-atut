@@ -4,6 +4,7 @@ import Lottie from "lottie-react";
 import ScannerAnimation from "../assets/animations/scan.json";
 import { Link } from "react-router-dom";
 import Loader from "../components/Loader";
+import { FiSearch } from "react-icons/fi";
 
 export default function HomePage() {
   const scannerAnimation = useRef(null);
@@ -51,9 +52,9 @@ export default function HomePage() {
 
           <Link
             to={"/operations"}
-            className="text-white text-md  bg-teal my-8 w-[300px]  mx-auto  text-center font-bold py-2 px-3 rounded-lg hover:bg-teal-600 transition duration-300"
+            className="text-white flex gap-x-4 items-center justify-center text-md  bg-teal my-8 w-[300px]  mx-auto  text-center font-bold py-2 px-3 rounded-lg hover:bg-teal-600 transition duration-300"
           >
-            Trouvez moi
+            Identifiez l'individu <FiSearch />
           </Link>
         </>
       )}

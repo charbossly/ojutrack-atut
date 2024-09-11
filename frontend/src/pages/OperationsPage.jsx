@@ -10,10 +10,12 @@ import { jsPDF } from "jspdf";
 import { FiDownload, FiDatabase } from "react-icons/fi";
 import axios from "axios";
 import { DataContext } from "../context/apiContext";
+import { dataURLToBlob } from "../utils";
 
 const API_BASE_INS_URL = import.meta.env.VITE_API_ETU_URI_BASE;
 
 const FaceRecognitionScreen = () => {
+  const { setImageSend } = useContext(DataContext);
   const [option, setOption] = useState("upload"); // Default is upload
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
@@ -81,7 +83,9 @@ const FaceRecognitionScreen = () => {
       url: imageData,
     });
 
-    setFile();
+    let imageBlob = dataURLToBlob(imageData);
+
+    setFile(new File([imageBlob], "image.png", { type: "image/png" }));
 
     setIsCaptured(true);
   };
@@ -94,6 +98,7 @@ const FaceRecognitionScreen = () => {
     console.log(file);
     const formData = new FormData();
     formData.append("image", file);
+    setImageSend(selectedFile);
     try {
       const response = await axios.post(
         API_BASE_INS_URL + "/api/upload_image",
@@ -107,12 +112,13 @@ const FaceRecognitionScreen = () => {
       console.log(response);
 
       console.log("Response:", response.data);
+
       updateData(response.data);
       setAnalyseStart(false);
       navigate("/similarity");
     } catch (error) {
       console.error("Error uploading file:", error);
-      setError("Une erreur est survenue ");
+      setError(error?.response?.data?.error || "Une erreur est survenue ");
     }
   };
 
@@ -135,12 +141,13 @@ const FaceRecognitionScreen = () => {
       };
       getVideo();
     }
-  }, [isCamera]);
+  }, [isCamera, isCaptured]);
 
   const handleCancel = () => {
     setAnalyseStart(false);
     setIsCaptured(false);
     setSelectedFile([]);
+    setError("");
   };
 
   const handleTakePicture = () => {
@@ -160,22 +167,27 @@ const FaceRecognitionScreen = () => {
         <>
           <div className="flex flex-col items-center justify-center">
             <div className="flex flex-col gap-y-1 mx-auto mt-4">
-              <span
+              {/* <span
                 className={`text-md text-center font-medium transition-opacity duration-500 ease-in-out transform ${
                   isCamera ? "text-white" : "text-teal"
                 }`}
                 key={isCamera ? "camera" : "upload"}
               >
                 {isCamera ? "Camera" : "Fichier"}
-              </span>
+              </span> */}
               <button
                 onClick={toggleSwitch}
-                className={`relative w-28 h-6 mt-1 mb-1 rounded-full transition-colors duration-500 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300 focus:scale-105 transform hover:scale-105 ${
+                className={`relative w-28 h-10 mt-1 mb-1  rounded-full transition-colors duration-500 ease-in-out outline-none ring-4 ring-teal scale-105 transform hover:scale-105 ${
                   isCamera ? "bg-gray-400" : "bg-teal"
                 }`}
               >
+                {!isCamera ? (
+                  <FiCamera className="w-6 h-10 ml-1 text-white" />
+                ) : (
+                  <FiUploadCloud className="w-6 h-10 ml-20 text-white" />
+                )}
                 <span
-                  className={`absolute left-1 top-1 w-8 h-4 rounded-full bg-white shadow-md transition-transform duration-500 ease-in-out transform ${
+                  className={`absolute left-1 top-1 w-9 h-8 rounded-full border-2  bg-white shadow-md transition-transform duration-500 ease-in-out transform ${
                     isCamera ? "translate-x-0" : "translate-x-16"
                   }`}
                 />
@@ -256,7 +268,7 @@ const FaceRecognitionScreen = () => {
               {isCaptured && AnalyseStart === false && (
                 <button
                   onClick={handleUpload}
-                  className="mx-auto my-8 px-6 block text-sm py-2 bg-teal text-white rounded-lg hover:bg-white hover:text-teal focus:outline-none focus:ring-2  focus:ring-offset-2 transition duration-300 ease-in-out"
+                  className="mx-auto my-8 px-6 block text-sm py-2 bg-teal text-white rounded-lg hover:bg-white hover:text-teal focus:outline-none focus:ring-2  ring-offset-2 transition duration-300 ease-in-out"
                 >
                   Analyser l'image
                 </button>
@@ -267,6 +279,7 @@ const FaceRecognitionScreen = () => {
                   <ProgressBar />
                 </div>
               )}
+              {error && <p className="text-center text-red-400">{error}</p>}
             </div>
           ) : (
             <div className="mt-8 max-w-sm w-full">
@@ -291,7 +304,7 @@ const FaceRecognitionScreen = () => {
                       Glissez et déposez votre image/photo ici
                     </p>
                     <p className="text-sm text-gray-500">ou</p>
-                    <button className="mt-4 px-6 py-1 bg-navy text-white rounded-full hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 ease-in-out">
+                    <button className="mt-4 px-6 py-1 bg-navy text-white rounded-full hover:bg-teal focus:outline-none ring-2 ring-teal ring-offset-2 transition duration-300 ease-in-out">
                       Chargez l'image
                     </button>
                   </div>
@@ -318,7 +331,7 @@ const FaceRecognitionScreen = () => {
               {selectedFile.name && AnalyseStart === false && (
                 <button
                   onClick={handleUpload}
-                  className="my-8 block px-6 mx-auto text-sm py-2 bg-teal text-white rounded-lg hover:bg-white hover:text-teal focus:outline-none focus:ring-2  focus:ring-offset-2 transition duration-300 ease-in-out"
+                  className="my-8 block px-6 mx-auto text-sm py-2 bg-teal text-white rounded-lg hover:bg-white hover:text-teal focus:outline-none ring-2  ring-offset-2 transition duration-300 ease-in-out"
                 >
                   Analyser l'image
                 </button>

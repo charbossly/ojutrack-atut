@@ -6,7 +6,7 @@ import Header from "../Header";
 
 export default function PageWrapper({ children }) {
   return (
-    <div className="gap-y-4 justify-between font-poppins flex-col md:gap-y-4  h-screen   flex items-center md:justify-center">
+    <div className="gap-y-4  justify-between font-poppins flex-col md:gap-y-4  h-screen   flex items-center md:justify-center">
       <Header />
       <div className="relative w-full   md:h-full   rounded-[40px] md:rounded-none  overflow-hidden">
         <div className="absolute inset-0  rounded-[40px] md:rounded-none pointer-events-none"></div>

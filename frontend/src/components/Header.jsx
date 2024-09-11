@@ -12,7 +12,7 @@ const Header = () => {
     <header className="bg-transparent w-full md:mx-4 lg:mx-8">
       <div className="w-full mx-auto flex items-center justify-between py-4 px-2  lg:px-6">
         {/* Logo */}
-        <NavLink to="/" className="text-2xl font-bold">
+        <NavLink to="/" className="text-2xl font-bold hover:cursor-pointer">
           <img src="/logo.png" alt="Logo" className="w-36 cursor-pointer" />
         </NavLink>
 

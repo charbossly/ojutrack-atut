@@ -12,7 +12,9 @@ const SwitcherButton = ({ isToggled, toggleSwitch }) => {
         className={`${
           isToggled ? "translate-x-6" : "translate-x-0"
         } absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300`}
-      ></div>
+      >
+        ok
+      </div>
     </div>
   );
 };

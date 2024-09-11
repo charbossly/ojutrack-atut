@@ -47,42 +47,61 @@ const ItemDetails = () => {
   const downloadAsPDF = () => {
     const doc = new jsPDF();
 
-    // Custom font styles
-    doc.setFontSize(20);
-    doc.setTextColor("#4a90e2");
-    doc.text(`Analyse Terminee (Similarite a ${item.score} %)`, 10, 20); // Image name as title
+    // Custom font styles for the CV header
+    doc.setFontSize(24);
+    doc.setTextColor("#1d4ed8"); // Tailwind Blue 600
+    doc.text("Profil Trouve", 105, 20, null, null, "center"); // Centered title
+
+    // Section: Personal Information
+    doc.setFontSize(18);
+    doc.setTextColor("#374151"); // Tailwind Gray 700
+    doc.text("Informations personelles", 10, 40);
 
     doc.setFontSize(12);
-
     doc.setTextColor("#000000");
-
-    // Initial Y position
-    let yPos = 30;
+    let yPos = 50; // Initial Y position after section header
 
     Object.keys(item).forEach((key, i) => {
-      doc.setTextColor("#333333");
+      // Skip displaying unnecessary fields
+      if (key === "image_paths" || key === "score") return;
 
-      // Display the key
+      // Display key (field name) in bold
+      doc.setFont(undefined, "bold");
       doc.text(`${key}:`, 10, yPos);
 
-      // Move to the next line and display the value
-      yPos += 10; // Move Y position down for the value
+      // Move to the next line and display the value in normal font
+      yPos += 6; // Adjusted line height for more spacing
+      doc.setFont(undefined, "normal");
       doc.text(`${item[key]}`, 10, yPos);
 
       // Move to the next line for the next key-value pair
       yPos += 10;
     });
 
-    // Add the image to the PDF
+    // Section: Analysis Results
+    doc.setFontSize(18);
+    doc.setTextColor("#374151"); // Tailwind Gray 700
+    yPos += 10; // Add some space before the next section
+    doc.text("Resultats de l'Analyse", 10, yPos);
+
+    doc.setFontSize(12);
+    doc.setTextColor("#000000");
+    yPos += 10;
+    doc.text(`Score: ${item.score * 100}%`, 10, yPos);
+
+    // Add image
     const img = new Image();
     img.src = API_BASE_INS_URL + "/image/" + item.image_paths;
     img.onload = function () {
-      // doc.addImage(img, "JPEG", 10, 70, 50, 50); // Add image with custom dimensions
-      doc.save(`similar.pdf`);
+      yPos += 10; // Adjust Y position for image placement
+      doc.addImage(img, "JPEG", 10, yPos, 50, 50); // Add image with custom dimensions
+
+      // After the image, save the PDF
+      doc.save("Suspect_Potentiel.pdf");
     };
     img.onerror = function () {
       console.error("Failed to load image.");
-      doc.save(`similar.pdf`); // Save the PDF even if image fails to load
+      doc.save("Suspect_Potentiel.pdf"); // Save the PDF even if image fails to load
     };
   };
 
@@ -115,7 +134,7 @@ const ItemDetails = () => {
         <Loader />
       ) : (
         <div className="container mx-auto p-6" ref={contentRef}>
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-col md:flex-row items-center justify-center">
             {/* Image Section */}
             <div className="w-full my-4 md:mx-auto">
               <img
@@ -132,27 +151,29 @@ const ItemDetails = () => {
                   if (key !== "image_paths") {
                     return (
                       <p key={item[key]} className="text-lg text-teal">
-                        {key}: <span className="text-teal">{item[key]}</span>
+                        <span className="font-bold text-black">{key}:</span>{" "}
+                        <span className="text-teal">{item[key]}</span>
                       </p>
                     );
                   }
                 })}
               </div>
-
-              <div className="flex flex-col md:flex-row md:justify-between">
-                <button
-                  onClick={downloadAsPDF}
-                  className="px-6 py-2 text-xs mt-4  text-white bg-teal hover:bg-navy rounded-lg shadow-md"
-                >
-                  Telecharger le PDF <FiDownload className="inline-block" />
-                </button>
-                <button
-                  onClick={downloadAsSQL}
-                  className="px-6 text-xs py-2 mt-4 text-white bg-teal hover:bg-navy rounded-lg shadow-md"
-                >
-                  Telecharger le sql <FiDatabase className="inline-block" />
-                </button>
-              </div>
+            </div>
+          </div>
+          <div>
+            <div className="container mx-auto p-6 flex flex-col md:flex-row justify-center gap-x-4">
+              <button
+                onClick={downloadAsPDF}
+                className="px-6 py-2 text-xs mt-4  text-white bg-teal hover:bg-navy rounded-lg shadow-md"
+              >
+                Telecharger le PDF <FiDownload className="inline-block" />
+              </button>
+              <button
+                onClick={downloadAsSQL}
+                className="px-6 text-xs py-2 mt-4 text-white bg-teal hover:bg-navy rounded-lg shadow-md"
+              >
+                Telecharger le sql <FiDatabase className="inline-block" />
+              </button>
             </div>
           </div>
         </div>
