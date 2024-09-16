@@ -95,7 +95,7 @@ const SimilarityUI = () => {
             </button>
           </div>
           {/* Similar Elements Section */}
-          {sorted.length > 0 && (
+          {sorted.length > 1 && (
             <div className="w-full max-w-lg my-4">
               <h3 className="text-xl text-center font-semibold text-teal mb-4">
                 Autres possibilités

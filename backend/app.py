@@ -2,7 +2,7 @@ import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import os
-import cv2
+# import cv2
 
 from deepface import DeepFace
 
@@ -243,13 +243,13 @@ def merge(faceid):
             # Chercher l'élément par ID
             #img = image[0].split("/")[-1]
 
-            if image == 200:
-                img = image[1].split("/")[-1]  # Assuming `response[0]` contains the image URL
-            else:
+           # if image == 200:
+            img = image[1].split("/")[-1]  # Assuming `response[0]` contains the image URL
+            #else:
                 
-                error_message = "Pas d'image similaire"
-                print(f"Error: {error_message}")  # Print error to the console
-                return jsonify({"error": error_message}), 404
+                # error_message = "Pas d'image similaire"
+                # print(f"Error: {error_message}")  # Print error to the console
+                # return jsonify({"error": error_message}), 404
         
             
 
